@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript">
+  var spData = null;
+  var HasHeader = 0;
+  function doData(json) {
+      spData = json.feed.entry;
+  }
+  
+  function change_alias(alias) {
+      var str = alias;
+      str = str.toLowerCase();
+      str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g,"a"); 
+      str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g,"e"); 
+      str = str.replace(/ì|í|ị|ỉ|ĩ/g,"i"); 
+      str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g,"o"); 
+      str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g,"u"); 
+      str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g,"y"); 
+      str = str.replace(/đ/g,"d");
+      str = str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g," ");
+      str = str.replace(/ + /g," ");
+      str = str.trim(); 
+      return str;
+  }
+  
+  function drawCell(tr, val, CellStyle) {
+      var td = $(CellStyle);
+      tr.append(td);
+      td.append(val);
+      return td;
+  }
+  
+  function drawRow(table, rowData, r) {
+	  if (rowData == null) return null;
+	  if (rowData.length == 0) return null;
+      var tr = $("<tr/>");
+      table.append(tr);
+      if (HasHeader == 0) {        
+        HasHeader = 1;
+        drawCell(tr, rowData[0], "<th bgcolor='FFFFCC'/>");
+        drawCell(tr, change_alias(rowData[0]), "<th style='display:none'/>");
+        for(var c=1; c<rowData.length; c++) {
+            drawCell(tr, rowData[c], "<th bgcolor='FFFFCC'/>");
+        }        
+      } else {
+      	drawCell(tr, rowData[0], "<td/>");
+        drawCell(tr, change_alias(rowData[1]), "<td style='display:none'/>");
+        for(var c=1; c<rowData.length; c++) {
+            drawCell(tr, rowData[c], "<td/>");
+        }
+      }
+	  return tr;
+  }
+  
+  function drawTable(parent) {
+	  var table = $("<table id='MyTable'/>");
+      parent.append(table);
+      var colgroup = $("<colgroup/>");
+      colgroup.append("<col width='5%'>")
+      colgroup.append("<col width='30%'")
+      colgroup.append("<col width='10%'>")
+      colgroup.append("<col width='15%'>")
+      colgroup.append("<col width='15%'>")
+      colgroup.append("<col width='25%'>")
+      table.append(colgroup)
+	  return table;
+  }
+  
+  function readData(parent) {
+      var data = spData;
+      var table = drawTable(parent);
+      var rowData = [];      
+      for(var r=0; r<data.length; r++) {
+          var cell = data[r]["gs$cell"];
+          var val = cell["$t"];
+          if (cell.col == 1) {
+              drawRow(table, rowData, r);
+              rowData = [];
+          }
+          rowData.push(val);
+      }
+      drawRow(table, rowData);
+  }
+  $(document).ready(function(){
+      readData($("#data"));
+  });
+</script>   
+<script src="https://spreadsheets.google.com/feeds/cells/19aU7pKPieT1E89ydcVISeTwP6fVxyMkPnbBWT_5r4dE/1/public/values?alt=json-in-script&callback=doData"></script>
+<style type="text/css">
+  form {display: none;}
+  
+* {box-sizing: border-box;}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.topnav {
+  overflow: hidden;
+  background-color: #e9e9e9;
+}
+
+.topnav a {
+  display: block;
+  color: white;
+  background-color: #2196F3;
+  text-align: center;
+  text-decoration: none;
+  float: right;
+  width: 30%;  
+  font-size: 13px;
+  padding: 13px;  
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+
+.topnav input[type=text] {
+  float: left;
+  width: 70%;
+  font-size: 13px;
+  padding: 12px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+#data {
+  display: inline-block;
+  width: 100%;
+  height: 500px;  
+  overflow: auto
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid #ddd;
+  font-size: 13px;
+}
+
+
+table th {
+ padding: 4px;
+ position: -webkit-sticky;
+ position: sticky;
+ top: 0;
+}
+
+table td{
+  padding: 4px;
+  white-space: nowrap;
+}
+
+.withscroll {
+  width: 100%;
+  overflow-x: scroll;
+  white-space: nowrap;
+}
+
+table tr {
+  border-bottom: 1px solid #ddd;
+}
+
+table tr.header, table tr:hover {
+  background-color: #80EBF0;
+}  
+  
+</style>
+</head>
+<body>
+<div class="topnav">
+  <a href="https://drive.google.com/open?id=19aU7pKPieT1E89ydcVISeTwP6fVxyMkPnbBWT_5r4dE">C&#7853;p nh&#7853;t</a>
+  <div>
+    <input type="text" id="SearchInput" onkeyup="SearchFunction()" placeholder="T&#236;m ki&#7871;m..." title="Nh&#7853;p t&#234;n h&#224;ng">
+  </div>
+<div id="data"/>
+
+<script>
+function SearchFunction() {
+  var input, txtSearch, table, tr, td0, td1, td2, i, txtValue, rgx;
+  input = document.getElementById("SearchInput");
+  txtSearch = input.value.toLowerCase();
+  rgx = new RegExp(txtSearch.replace(" ", "[^|]*"));
+  table = document.getElementById("MyTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 1; i < tr.length; i++) {
+    td0 = tr[i].getElementsByTagName("td")[0];
+    td1 = tr[i].getElementsByTagName("td")[1];
+    td2 = tr[i].getElementsByTagName("td")[2];
+    if (td2) {
+      txtValue = (td0.textContent + "|" + td1.textContent + "|" + td2.textContent).toLowerCase();
+      if (rgx.test(txtValue)) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+</script>
+
+</body>
+</html> 
